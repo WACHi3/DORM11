@@ -11,8 +11,8 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Kanit', sans-serif; }
         body { display: flex; height: 100vh; background-color: #f0f2f5; }
         
-        /* Sidebar */
-        .sidebar { width: 260px; background-color: #1e293b; color: white; display: flex; flex-direction: column; }
+        /* Sidebar (Desktop) */
+        .sidebar { width: 260px; background-color: #1e293b; color: white; display: flex; flex-direction: column; flex-shrink: 0; }
         .sidebar-header { padding: 20px; text-align: center; border-bottom: 1px solid #334155; }
         .menu-btn { width: 100%; padding: 15px 20px; text-align: left; background: none; border: none; color: #cbd5e1; font-size: 1rem; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 10px; position: relative; }
         .menu-btn:hover, .menu-btn.active { background-color: #334155; color: white; border-left: 4px solid #2CC0FF; }
@@ -22,15 +22,24 @@
         /* Notification Badge */
         .badge { background-color: #ff3b30; color: white; border-radius: 50%; padding: 2px 7px; font-size: 0.75rem; font-weight: bold; position: absolute; right: 20px; display: none; }
 
+        /* Mobile Header & Bottom Nav (ซ่อนในคอม) */
+        .admin-header-mobile { display: none; background: #1e293b; color: white; padding: 15px 20px; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .bottom-nav { display: none; position: fixed; bottom: 0; width: 100%; background: white; justify-content: space-around; padding: 10px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 1000; }
+        .nav-item { text-align: center; color: #94a3b8; cursor: pointer; flex: 1; font-size: 0.8rem; position: relative; }
+        .nav-item.active { color: #2CC0FF; font-weight: bold; }
+        .nav-item i { display: block; font-size: 1.3rem; margin-bottom: 3px; }
+        .nav-badge { background-color: #ff3b30; color: white; border-radius: 50%; padding: 2px 5px; font-size: 0.6rem; font-weight: bold; position: absolute; top: -5px; right: 15px; display: none; }
+
         /* Main Content */
-        .main-content { flex: 1; padding: 30px; overflow-y: auto; }
+        .main-content { flex: 1; padding: 30px; overflow-y: auto; width: 100%; }
         .header-title { font-size: 1.5rem; color: #333; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #ddd; }
         
         .section-card { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: none; }
         .section-card.active { display: block; }
 
         /* Table */
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .table-responsive { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; min-width: 600px; }
         th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ddd; }
         th { background-color: #f8fafc; color: #475569; font-weight: 500; }
         select.status-select { padding: 8px; border-radius: 5px; border: 1px solid #ccc; font-family: 'Kanit'; cursor: pointer; }
@@ -64,9 +73,35 @@
         .msg.admin { background: #2CC0FF; color: white; margin-left: auto; border-bottom-right-radius: 0; }
         
         .chat-input-area { padding: 15px; border-top: 1px solid #e2e8f0; display: flex; gap: 10px; background: #f8fafc; border-radius: 0 0 8px 8px; }
+
+        /* จัดการหน้าจอมือถือ (Responsive) */
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar { display: none; } /* ซ่อนแถบด้านซ้าย */
+            .admin-header-mobile { display: flex; } /* แสดง Header บนมือถือ */
+            .bottom-nav { display: flex; } /* แสดงเมนูด้านล่าง */
+            
+            .main-content { padding: 15px; padding-bottom: 80px; }
+            .section-card { padding: 15px; }
+            .header-title { font-size: 1.2rem; }
+
+            /* ปรับหน้าแชทบนมือถือ */
+            .chat-wrapper { flex-direction: column; height: calc(100vh - 200px); }
+            .inbox-list { width: 100%; flex: 0.4; min-height: 120px; border-radius: 8px; }
+            .chat-area { flex: 0.6; }
+            .inbox-item { padding: 10px; }
+            .avatar { width: 35px; height: 35px; font-size: 1rem; }
+        }
     </style>
 </head>
 <body>
+
+    <div class="admin-header-mobile">
+        <h3 style="color: #2CC0FF; margin: 0;">Admin Panel</h3>
+        <button onclick="logout()" style="background: transparent; border: 1px solid #ef4444; color: #ef4444; padding: 5px 12px; border-radius: 5px; cursor: pointer;">
+            <i class="fa-solid fa-power-off"></i> ออก
+        </button>
+    </div>
 
     <div class="sidebar">
         <div class="sidebar-header">
@@ -86,12 +121,14 @@
     <div class="main-content">
         <div id="sec-repairs" class="section-card active">
             <h2 class="header-title">รายการแจ้งซ่อมทั้งหมด</h2>
-            <table>
-                <thead>
-                    <tr><th>ห้องพัก</th><th>ชื่อผู้แจ้ง</th><th>หมวดหมู่</th><th>รายละเอียด</th><th>สถานะการซ่อม</th></tr>
-                </thead>
-                <tbody id="adminRepairs"><tr><td colspan="5" style="text-align:center;">กำลังโหลดข้อมูล...</td></tr></tbody>
-            </table>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr><th>ห้องพัก</th><th>ชื่อผู้แจ้ง</th><th>หมวดหมู่</th><th>รายละเอียด</th><th>สถานะการซ่อม</th></tr>
+                    </thead>
+                    <tbody id="adminRepairs"><tr><td colspan="5" style="text-align:center;">กำลังโหลดข้อมูล...</td></tr></tbody>
+                </table>
+            </div>
         </div>
 
         <div id="sec-news" class="section-card">
@@ -103,14 +140,16 @@
 
         <div id="sec-banners" class="section-card">
             <h2 class="header-title">จัดการภาพสไลด์ (แบนเนอร์ด้านบนเว็บ)</h2>
-            <input type="text" id="bannerImg" placeholder="วางลิงก์รูปภาพ (Image URL) แนะนำภาพแนวนอน..." required>
+            <input type="text" id="bannerImg" placeholder="วางลิงก์รูปภาพ (Image URL)..." required>
             <input type="text" id="bannerLink" placeholder="วางลิงก์ปลายทางเมื่อคลิกรูปภาพ (Target URL)...">
             <button class="action-btn" onclick="addBanner()"><i class="fa-solid fa-plus"></i> เพิ่มภาพสไลด์</button>
             
-            <table style="margin-top: 20px;">
-                <thead><tr><th>รูปภาพ</th><th>ลิงก์ปลายทาง</th><th>จัดการ</th></tr></thead>
-                <tbody id="adminBanners"></tbody>
-            </table>
+            <div class="table-responsive" style="margin-top: 20px;">
+                <table>
+                    <thead><tr><th>รูปภาพ</th><th>ลิงก์ปลายทาง</th><th>จัดการ</th></tr></thead>
+                    <tbody id="adminBanners"></tbody>
+                </table>
+            </div>
         </div>
 
         <div id="sec-chats" class="section-card">
@@ -134,11 +173,27 @@
                     </div>
                     
                     <div class="chat-input-area">
-                        <input type="text" id="adminMsg" placeholder="พิมพ์ข้อความตอบกลับ..." style="margin-bottom: 0;" disabled onkeypress="if(event.key === 'Enter') sendAdminChat()">
+                        <input type="text" id="adminMsg" placeholder="พิมพ์ข้อความ..." style="margin-bottom: 0;" disabled onkeypress="if(event.key === 'Enter') sendAdminChat()">
                         <button class="action-btn" id="btnSend" onclick="sendAdminChat()" disabled><i class="fa-solid fa-paper-plane"></i> ส่ง</button>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchSection('repairs')">
+            <i class="fa-solid fa-list-check"></i> แจ้งซ่อม
+        </div>
+        <div class="nav-item" onclick="switchSection('news')">
+            <i class="fa-solid fa-pen-to-square"></i> ข่าวสาร
+        </div>
+        <div class="nav-item" onclick="switchSection('banners')">
+            <i class="fa-solid fa-images"></i> สไลด์
+        </div>
+        <div class="nav-item" onclick="switchSection('chats')">
+            <i class="fa-solid fa-inbox"></i> แชท
+            <span id="chatBadgeMobile" class="nav-badge">!</span>
         </div>
     </div>
 
@@ -147,23 +202,29 @@
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRweXNycWhqbHpicW96dWh5aGZ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0NDA4MTYsImV4cCI6MjA5NDAxNjgxNn0.t9qTfKxRrenwI_muXG0jOb57QjQJrpH7TFX0TUCD6yE';
         const db = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-        // แก้เป็นตัวพิมพ์เล็ก
         if(localStorage.getItem('userRole') !== 'admin') window.location.href = 'dorm11.html';
-        
-        // แก้เป็นตัวพิมพ์เล็ก
         function logout() { localStorage.clear(); window.location.href = 'dorm11.html'; }
 
         function switchSection(id) {
+            // ซ่อนเนื้อหาทั้งหมด
             document.querySelectorAll('.section-card').forEach(el => el.classList.remove('active'));
+            // เคลียร์ปุ่มที่เลือกทั้งในคอมและมือถือ
             document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+            
+            // แสดงเนื้อหาที่เลือก
             document.getElementById('sec-' + id).classList.add('active');
-            event.currentTarget.classList.add('active');
+            
+            // ทำไฮไลต์ปุ่มที่ถูกเลือก (รองรับทั้ง Sidebar และ Bottom Nav)
+            document.querySelector(`.menu-btn[onclick="switchSection('${id}')"]`).classList.add('active');
+            document.querySelector(`.nav-item[onclick="switchSection('${id}')"]`).classList.add('active');
 
             if(id === 'repairs') loadAllRepairs();
             if(id === 'banners') loadBanners();
             if(id === 'chats') {
-                document.getElementById('chatBadge').style.display = 'none'; // ซ่อนจุดแดงที่เมนู
-                loadInbox(); // โหลดรายชื่อแชท
+                document.getElementById('chatBadge').style.display = 'none';
+                document.getElementById('chatBadgeMobile').style.display = 'none';
+                loadInbox(); 
             }
         }
 
@@ -229,36 +290,25 @@
             if(confirm('ต้องการลบภาพนี้หรือไม่?')) { await db.from('banners').delete().eq('id', id); loadBanners(); }
         }
 
-        /* --- ระบบแชทใหม่ (สไตล์ IG) --- */
+        /* --- ระบบแชท --- */
         let currentChatRoom = '';
         let chatRefreshInterval;
 
-        // ฟังก์ชันดึงรายชื่อห้องที่เคยทักมา (Inbox List)
         async function loadInbox() {
-            // ดึงข้อความ 500 อันดับล่าสุดมาจัดกลุ่ม
             const { data } = await db.from('chats').select('*').order('created_at', { ascending: false }).limit(500);
-            
             let uniqueRooms = [];
             let inboxHtml = '';
 
             if(data && data.length > 0) {
                 data.forEach(chat => {
-                    // หาว่าดึงห้องนี้มาแสดงในลิสต์หรือยัง ถ้ายังให้ใส่เข้าไป (ทำให้ได้ข้อความล่าสุดของแต่ละห้อง)
                     if(!uniqueRooms.find(r => r.room === chat.room_number)) {
                         let msgTime = new Date(chat.created_at);
                         let timeStr = msgTime.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
-                        
-                        uniqueRooms.push({
-                            room: chat.room_number,
-                            lastMsg: chat.message,
-                            sender: chat.sender,
-                            time: timeStr
-                        });
+                        uniqueRooms.push({ room: chat.room_number, lastMsg: chat.message, sender: chat.sender, time: timeStr });
                     }
                 });
 
                 uniqueRooms.forEach(item => {
-                    // ถ้าข้อความล่าสุดส่งมาจาก user ให้มีจุดแดงแจ้งเตือน
                     let unreadDot = item.sender === 'user' ? '<span class="unread-dot"></span>' : '';
                     let activeClass = item.room === currentChatRoom ? 'active' : '';
                     let prefix = item.sender === 'admin' ? 'คุณ: ' : '';
@@ -279,29 +329,22 @@
                     </div>`;
                 });
             }
-
             document.getElementById('inboxList').innerHTML = inboxHtml || '<p style="text-align:center; padding:20px; color:#94a3b8;">ยังไม่มีกล่องข้อความ</p>';
         }
 
-        // เมื่อคลิกที่ห้องในรายชื่อ
         function openChat(roomNumber) {
             currentChatRoom = roomNumber;
             document.getElementById('chatHeader').innerHTML = `<i class="fa-solid fa-user-circle" style="color:#2CC0FF; margin-right:5px; font-size:1.2rem;"></i> สนทนากับห้อง: <strong>${roomNumber}</strong>`;
-            
-            // เปิดให้พิมพ์ข้อความได้
             document.getElementById('adminMsg').disabled = false;
             document.getElementById('btnSend').disabled = false;
             
-            // โหลดแชทฝั่งขวา และอัปเดตแถบสี active ฝั่งซ้าย
             loadAdminChats();
             loadInbox();
 
-            // สั่งให้รีเฟรชแชทของห้องนี้ทุกๆ 3 วินาที (ให้เหมือนคุยแบบเรียลไทม์)
             if(chatRefreshInterval) clearInterval(chatRefreshInterval);
             chatRefreshInterval = setInterval(loadAdminChats, 3000);
         }
 
-        // โหลดข้อความทั้งหมดของห้องที่เลือก (ฝั่งขวา)
         async function loadAdminChats() {
             if(!currentChatRoom) return;
             const { data } = await db.from('chats').select('*').eq('room_number', currentChatRoom).order('created_at', { ascending: true });
@@ -315,36 +358,32 @@
             
             const chatBox = document.getElementById('adminChatBox');
             chatBox.innerHTML = html;
-            // เลื่อนลงล่างสุดอัตโนมัติ
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        // ส่งข้อความ
         async function sendAdminChat() {
             let msgInput = document.getElementById('adminMsg');
             let msg = msgInput.value.trim();
             if(!currentChatRoom || !msg) return;
 
-            msgInput.value = ''; // เคลียร์ช่องพิมพ์
+            msgInput.value = ''; 
             await db.from('chats').insert([{ room_number: currentChatRoom, sender: 'admin', message: msg }]);
-            
-            loadAdminChats(); // โหลดแชทใหม่ทันที
-            loadInbox(); // อัปเดตรายชื่อ (ให้ข้อความล่าสุดเป็นของเรา)
+            loadAdminChats(); 
+            loadInbox(); 
         }
 
-        // เช็กแจ้งเตือนจุดสีแดงตรงเมนูด้านซ้ายสุด
         async function checkNewMessages() {
             const { data } = await db.from('chats').select('sender').order('created_at', { ascending: false }).limit(1);
             if (data && data.length > 0 && data[0].sender === 'user') {
-                // ถ้าเมนูแชทไม่ได้เปิดอยู่ ให้แสดงจุดแดง
                 if(!document.getElementById('sec-chats').classList.contains('active')) {
                     document.getElementById('chatBadge').style.display = 'inline-block';
+                    document.getElementById('chatBadgeMobile').style.display = 'inline-block';
                 }
             }
         }
 
         loadAllRepairs();
-        setInterval(checkNewMessages, 5000); // เช็กแจ้งเตือนใหม่ทุกๆ 5 วินาที
+        setInterval(checkNewMessages, 5000);
     </script>
 </body>
 </html>
