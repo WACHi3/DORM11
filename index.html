@@ -120,9 +120,12 @@
         const db = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         const userRoom = localStorage.getItem('userRoom');
-        if(!userRoom || localStorage.getItem('userRole') !== 'user') window.location.href = 'DORM11.html';
+        // แก้เป็นตัวพิมพ์เล็ก
+        if(!userRoom || localStorage.getItem('userRole') !== 'user') window.location.href = 'dorm11.html';
         document.getElementById('roomNumber').value = userRoom;
-        function logout() { localStorage.clear(); window.location.href = 'DORM11.html'; }
+        
+        // แก้เป็นตัวพิมพ์เล็ก
+        function logout() { localStorage.clear(); window.location.href = 'dorm11.html'; }
 
         function switchTab(tabId, title) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
