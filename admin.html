@@ -147,8 +147,11 @@
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRweXNycWhqbHpicW96dWh5aGZ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0NDA4MTYsImV4cCI6MjA5NDAxNjgxNn0.t9qTfKxRrenwI_muXG0jOb57QjQJrpH7TFX0TUCD6yE';
         const db = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-        if(localStorage.getItem('userRole') !== 'admin') window.location.href = 'DORM11.html';
-        function logout() { localStorage.clear(); window.location.href = 'DORM11.html'; }
+        // แก้เป็นตัวพิมพ์เล็ก
+        if(localStorage.getItem('userRole') !== 'admin') window.location.href = 'dorm11.html';
+        
+        // แก้เป็นตัวพิมพ์เล็ก
+        function logout() { localStorage.clear(); window.location.href = 'dorm11.html'; }
 
         function switchSection(id) {
             document.querySelectorAll('.section-card').forEach(el => el.classList.remove('active'));
