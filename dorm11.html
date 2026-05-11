@@ -79,11 +79,11 @@
 
             if(user === "admin" && pass === "dorm11kkuadmin") {
                 localStorage.setItem('userRole', 'admin');
-                window.location.href = "ADMIN.html"; // แก้ให้ตรงชื่อไฟล์ ADMIN.html
+                window.location.href = "admin.html"; // แก้เป็นตัวพิมพ์เล็ก
             } else if(allowedRooms.includes(user) && pass === "dorm11member") {
                 localStorage.setItem('userRole', 'user');
                 localStorage.setItem('userRoom', user);
-                window.location.href = "Index.html"; // แก้ให้ตรงชื่อไฟล์ Index.html
+                window.location.href = "index.html"; // แก้เป็นตัวพิมพ์เล็ก
             } else {
                 errorMsg.style.display = "block";
             }
