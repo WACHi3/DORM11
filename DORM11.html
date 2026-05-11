@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เข้าสู่ระบบ | หอพักชายที่ 11</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Kanit', sans-serif; }
+        body { display: flex; height: 100vh; background-color: #f4f7f6; }
+        
+        /* แก้ไขตรงนี้: ลิงก์พื้นหลังจาก Google Drive */
+        .image-side { 
+            flex: 1; 
+            background-image: url('https://scontent.fnak1-1.fna.fbcdn.net/v/t39.30808-6/696292327_2479129215834593_501571324400711078_n.jpg?stp=dst-jpg_s590x590_tt6&_nc_cat=104&ccb=1-7&_nc_sid=13d280&_nc_ohc=8RcCbcJ13IMQ7kNvwFFwdiu&_nc_oc=AdrZ5G6jue4uKYEnuVFXpF6TPK9qwGzSMqu2Oy8NbSAdXlSWLusLaK3H79Um2hAk220&_nc_zt=23&_nc_ht=scontent.fnak1-1.fna&_nc_gid=wqKzpYmpWDQbKTrH1uRcNg&_nc_ss=7b2a8&oh=00_Af74IdMduL8DhFq59WDLqiNBhQysyZAU8rDRXZZ7dntZKQ&oe=6A074FF8'); 
+            background-size: cover; 
+            background-position: top; 
+            display: none; 
+        }
+        @media (min-width: 768px) { .image-side { display: block; } }
+
+        .login-side { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: white; padding: 2rem; }
+        .login-container { width: 100%; max-width: 400px; text-align: center; }
+        .logo { width: 180px; margin-bottom: 20px; }
+        
+        h2 { color: #333; margin-bottom: 5px; font-weight: 600; }
+        p { color: #777; margin-bottom: 30px; font-size: 0.9rem; }
+
+        .input-group { position: relative; margin-bottom: 20px; text-align: left; }
+        .input-group i { position: absolute; top: 50%; left: 15px; transform: translateY(-50%); color: #777; }
+        .input-group input { width: 100%; padding: 12px 15px 12px 40px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; transition: 0.3s; }
+        .input-group input:focus { border-color: #2CC0FF; outline: none; box-shadow: 0 0 0 2px rgba(44, 192, 255, 0.2); }
+
+        .btn-login { width: 100%; padding: 12px; background-color: #2CC0FF; color: white; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer; transition: 0.3s; font-weight: 500; }
+        .btn-login:hover { background-color: #1ba0d9; }
+        
+        .error-msg { color: red; font-size: 0.85rem; margin-top: 10px; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="image-side"></div>
+    
+    <div class="login-side">
+        <div class="login-container">
+            <img src="https://scontent.fnak1-1.fna.fbcdn.net/v/t39.30808-6/695529023_2479131319167716_8734703501762964606_n.jpg?stp=dst-jpg_s590x590_tt6&_nc_cat=107&ccb=1-7&_nc_sid=13d280&_nc_ohc=U4ScP25GgE4Q7kNvwGeCVIM&_nc_oc=AdrIYpMw_EsNwHz7CBEEOlaX5NhTPEJK3sOXPfsQ1cFJgsH-v8xSADYaHGmxaG4-qFE&_nc_zt=23&_nc_ht=scontent.fnak1-1.fna&_nc_gid=Lcx9J5MJVC7WbwiZD_Qt9Q&_nc_ss=7b2a8&oh=00_Af7eZmgV4AHcSJEamUxkuHi0229ogIWYCtn8xptKzqimBw&oe=6A07468C" alt="KKU Logo" class="logo">
+            <h2>เข้าสู่ระบบ</h2>
+            <p>ระบบแจ้งซ่อม หอพักชายที่ 11 มหาวิทยาลัยขอนแก่น</p>
+
+            <form id="loginForm">
+                <div class="input-group">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" id="username" placeholder="หมายเลขห้อง(User)" required>
+                </div>
+                <div class="input-group">
+                    <i class="fa-solid fa-key"></i>
+                    <input type="password" id="password" placeholder="รหัสผ่าน" required>
+                </div>
+                <button type="submit" class="btn-login">เข้าสู่ระบบ</button>
+                <div id="errorMsg" class="error-msg">ข้อมูลการเข้าสู่ระบบไม่ถูกต้อง!</div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const allowedRooms = [];
+        for(let i=1; i<=26; i++) {
+            allowedRooms.push("2" + String(i).padStart(2, '0'));
+            allowedRooms.push("3" + String(i).padStart(2, '0'));
+            allowedRooms.push("4" + String(i).padStart(2, '0'));
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const user = document.getElementById('username').value.trim();
+            const pass = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMsg');
+
+            if(user === "admin" && pass === "dorm11kkuadmin") {
+                localStorage.setItem('userRole', 'admin');
+                window.location.href = "ADMIN.html"; // แก้ให้ตรงชื่อไฟล์ ADMIN.html
+            } else if(allowedRooms.includes(user) && pass === "dorm11member") {
+                localStorage.setItem('userRole', 'user');
+                localStorage.setItem('userRoom', user);
+                window.location.href = "Index.html"; // แก้ให้ตรงชื่อไฟล์ Index.html
+            } else {
+                errorMsg.style.display = "block";
+            }
+        });
+    </script>
+</body>
+</html>
